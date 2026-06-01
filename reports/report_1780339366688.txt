@@ -1,0 +1,11 @@
+CONFIGGUARD VALIDATION REPORT
+============================
+
+Valid: false
+
+Errors:
+- Server cannot be empty
+- Port must be between 1 and 65535
+
+Warnings:
+- Timeout is unusually low

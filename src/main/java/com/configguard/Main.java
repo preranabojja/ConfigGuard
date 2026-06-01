@@ -2,22 +2,54 @@ package com.configguard;
 
 import com.configguard.model.Config;
 import com.configguard.parser.ConfigParser;
+import com.configguard.report.ReportGenerator;
 import com.configguard.validator.ConfigValidator;
 import com.configguard.validator.ValidationResult;
-import com.configguard.report.ReportGenerator;
 
 public class Main {
 
     public static void main(String[] args) {
 
+        if (args.length < 2) {
+            System.out.println("Usage: <command> <config-file>");
+            System.out.println("Commands:");
+            System.out.println("  validate <config-file>");
+            System.out.println("  summary <config-file>");
+            return;
+        }
+
+        String command = args[0];
+        String filePath = args[1];
+
+        // SUMMARY COMMAND
+        if (command.equals("summary")) {
+
+            try {
+                Config config = ConfigParser.parse(filePath);
+
+                System.out.println("CONFIG SUMMARY");
+                System.out.println("--------------");
+                System.out.println("Server: " + config.getServer());
+                System.out.println("Port: " + config.getPort());
+                System.out.println("Timeout: " + config.getTimeout());
+
+            } catch (Exception e) {
+                System.out.println("Error reading configuration file.");
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
+        // VALIDATE COMMAND
+        if (!command.equals("validate")) {
+            System.out.println("Unknown command: " + command);
+            return;
+        }
+
         try {
 
-            String filePath = args.length > 0
-        ? args[0]
-        : "configs/dev.json";
-
-Config config =
-        ConfigParser.parse(filePath);
+            Config config = ConfigParser.parse(filePath);
 
             ValidationResult result =
                     ConfigValidator.validate(config);
@@ -27,25 +59,30 @@ Config config =
             System.out.println("Valid: " + result.isValid());
 
             System.out.println("\nErrors:");
-            result.getErrors().forEach(System.out::println);
+            for (String error : result.getErrors()) {
+                System.out.println(error);
+            }
 
             System.out.println("\nWarnings:");
-            result.getWarnings().forEach(System.out::println);
+            for (String warning : result.getWarnings()) {
+                System.out.println(warning);
+            }
 
-            // ADD THIS PART HERE
+            String reportFile =
+                    "reports/report_"
+                    + System.currentTimeMillis()
+                    + ".txt";
+
             ReportGenerator.generate(
                     result,
-                    "reports/report.txt");
+                    reportFile);
 
             System.out.println(
-                    "\nReport saved to reports/report.txt");
+                    "\nReport saved to " + reportFile);
 
-        }
-        catch (Exception e) {
-
-            System.out.println("Error reading config file");
+        } catch (Exception e) {
+            System.out.println("Error validating configuration.");
             e.printStackTrace();
-
         }
     }
 }
