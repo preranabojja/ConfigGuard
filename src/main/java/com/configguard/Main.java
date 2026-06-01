@@ -12,8 +12,12 @@ public class Main {
 
         try {
 
-            Config config =
-                    ConfigParser.parse("configs/sample.json");
+            String filePath = args.length > 0
+        ? args[0]
+        : "configs/dev.json";
+
+Config config =
+        ConfigParser.parse(filePath);
 
             ValidationResult result =
                     ConfigValidator.validate(config);

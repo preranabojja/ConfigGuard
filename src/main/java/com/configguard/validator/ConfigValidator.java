@@ -30,6 +30,21 @@ public class ConfigValidator {
             result.addWarning("Timeout is unusually low");
         }
 
+        if (config.getServer().contains(" ")) {
+    result.addError(
+        "Server name cannot contain spaces");
+}
+
+if (config.getTimeout() > 300) {
+    result.addWarning(
+        "Timeout is unusually high");
+}
+
+if (config.getPort() == 22) {
+    result.addWarning(
+        "Port 22 may require elevated permissions");
+}
+
         return result;
     }
 }
